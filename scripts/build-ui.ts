@@ -1,6 +1,8 @@
 // Bundle the guest program (plain TS policy bundle — no JSX/pak needed until
 // the widget grows 2D chrome; then this switches to the vendored PocketJS
 // build pipeline).
+export {};
+
 const result = await Bun.build({
   entrypoints: ["app/main.ts"],
   outdir: "dist",
