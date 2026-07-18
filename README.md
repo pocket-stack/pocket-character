@@ -89,6 +89,25 @@ bun scripts/measure.ts                 # 60 fps
 bun scripts/measure.ts --max-fps 30    # 30 fps variant
 ```
 
+### Reproducing the airi side of the comparison
+
+airi's out-of-the-box stage is **Live2D (a different character on a
+different renderer)** — for an apples-to-apples screenshot or measurement it
+must be switched to its VRM stage with the same model pocket-character
+renders (AvatarSample_A). Either pick **AvatarSample_A** in airi's settings
+→ Models, or script it:
+
+```sh
+/Applications/AIRI.app/Contents/MacOS/AIRI --remote-debugging-port=9222 &
+bun scripts/airi-vrm.ts                    # switch to preset-vrm-1 (AvatarSample_A)
+bun scripts/airi-vrm.ts preset-live2d-1    # revert
+```
+
+Give the VRM scene ~60 s to settle, hands off, then measure. Sum **all**
+AIRI processes (search "AIRI" in Activity Monitor — besides the two obvious
+helpers there are GPU/network/audio services and a hidden beat-sync
+renderer; close the onboarding window first or count its renderer too).
+
 ### Reading CPU numbers
 
 All CPU percentages here (and in Activity Monitor's per-process column,
