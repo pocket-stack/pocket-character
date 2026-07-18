@@ -1,0 +1,20 @@
+[package]
+name = "pocket-character"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "macOS character-widget host: transparent always-on-top VRM character on the Pocket runtime"
+
+[dependencies]
+pocket3d = { workspace = true }
+pocket-vrm = { workspace = true }
+pocket-mod = { workspace = true }
+pocket-ui-wgpu = { workspace = true }
+pocket-character-core = { workspace = true }
+wgpu = { workspace = true }
+winit = { workspace = true }
+glam = { workspace = true }
+anyhow = { workspace = true }
+log = { workspace = true }
+env_logger = { workspace = true }

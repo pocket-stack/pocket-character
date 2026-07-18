@@ -1,0 +1,10 @@
+[package]
+name = "pocket-character-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Portable character-widget simulation: blink/saccade schedulers and look-at state"
+
+[dependencies]
+glam = { workspace = true }

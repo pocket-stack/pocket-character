@@ -1,0 +1,8 @@
+target/
+node_modules/
+dist/
+out/
+assets/*.vrm
+assets/*.vrma
+*.log
+.DS_Store
