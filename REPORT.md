@@ -18,7 +18,24 @@ Same machine, same methodology, same character, same idle behaviors.
 - Methodology: launch → settle → ≥60 s of `ps` samples at 5 s intervals over
   the **full process tree** (RSS + %CPU, median reported), plus macOS
   `footprint` (phys_footprint counts GPU/IOSurface memory that RSS misses).
-  %CPU is per-core.
+
+**How to read the CPU column.** Every %CPU in this report is the standard
+per-process convention used by `ps`, `top` and Activity Monitor's process
+list: **percent of one core** (100 % = one core saturated; a 16-core M3 Max
+totals 1600 %). Both sides of the comparison are measured in the same unit,
+so the ratios hold. Activity Monitor's bottom System/User/Idle summary is a
+different quantity — whole-machine utilization across *all* processes — and
+cannot be attributed to any one app. When eyeballing Activity Monitor,
+judge only after ~1 min idle and hands off: launch spends ~2 CPU-seconds
+decoding the model, and clicking/dragging the widget adds transient work,
+both of which inflate short averaging windows. Compositor cost
+(WindowServer) is excluded on both sides of the comparison.
+
+Cross-check with interval sampling (`top -l`, the same scheme Activity
+Monitor uses, 12×5 s hands-off): pocket-character reads **2.4–2.8 % at
+30 fps and 4.4–4.8 % at 60 fps** — slightly above the `ps` decaying-average
+medians in the table (2.1 % / 3.9 %). Quote the interval-sampled numbers
+when comparing against what Activity Monitor shows.
 
 airi's literal default character is Live2D (Momose Hiyori, proprietary
 Cubism runtime); its 3D digital-human mode is VRM. The parity target is the

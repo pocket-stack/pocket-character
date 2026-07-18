@@ -44,27 +44,61 @@ The generic halves live in the PocketJS main repo:
 (VRM 0.x parsing, spring bones, VRMA retargeting) — see
 [pocket-stack/pocketjs#125](https://github.com/pocket-stack/pocketjs/pull/125).
 
-## Run
+## Manual verification, from scratch
+
+Prerequisites: a Rust toolchain (stable) and [Bun](https://bun.sh). macOS
+Apple Silicon is the measured platform.
 
 ```sh
-bun install          # nothing to install, but sets up the workspace
-bun run setup        # submodule + vendored bun install + assets (not committed)
-bun run widget       # build guest bundle + release binary, launch the widget
+# 1. Clone with the engine submodule
+git clone --recurse-submodules https://github.com/pocket-stack/pocket-character
+cd pocket-character
+
+# 2. One-time setup: vendored bun install, node_modules symlinks,
+#    and the model assets (downloaded, never committed)
+bun run setup
+
+# 3. Build guest bundle + release binary and launch the widget
+bun run widget
 ```
 
-Verification without a window (renders the same Game object offscreen,
-alpha preserved):
+`bun run widget` leaves the process attached to your terminal — quit with
+Ctrl-C. Once built, launch directly:
+
+```sh
+target/release/pocket-character                # 60 fps (parity default)
+target/release/pocket-character --max-fps 30   # low-power variant
+```
+
+What you should see: a transparent, undecorated, always-on-top 450×600
+window with the character idling — looping motion, blinks every 1–6 s, eye
+saccades, hair/hood physics. Drag anywhere on the character to move it.
+
+Headless verification (no window; renders the same `Game` object offscreen —
+the PNG's alpha channel is the actual window transparency):
 
 ```sh
 target/release/pocket-character --headless-shot shot.png --ticks 90
 ```
 
-Measurement (same methodology as the airi baseline — ≥60 s of `ps` samples
-over the process tree + `footprint`):
+Reproduce the measurements (launches its own instance, settles 15 s, then
+samples ≥60 s and prints a `RESULT` JSON line + markdown row):
 
 ```sh
-bun scripts/measure.ts
+bun scripts/measure.ts                 # 60 fps
+bun scripts/measure.ts --max-fps 30    # 30 fps variant
 ```
+
+### Reading CPU numbers
+
+All CPU percentages here (and in Activity Monitor's per-process column,
+`ps`, `top`) are **percent of one core** — 100 % = one core saturated, so a
+16-core machine totals 1600 %. Activity Monitor's bottom System/User/Idle
+summary is normalized to the whole machine instead, and covers *all*
+processes, not this one. Two things inflate a casual glance right after
+launch: the first ~2 CPU-seconds are model decode (init), and clicking or
+dragging the widget adds work — judge idle cost only after ~1 min of
+hands-off settling, which is what `scripts/measure.ts` automates.
 
 ## Model & animation assets
 
