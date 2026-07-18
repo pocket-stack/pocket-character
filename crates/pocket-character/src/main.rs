@@ -52,6 +52,11 @@ fn main() -> Result<()> {
         let ticks: u32 = flag("--ticks").and_then(|s| s.parse().ok()).unwrap_or(60);
         return headless_shot(cfg, ticks, PathBuf::from(out));
     }
+    if let Some(dir) = flag("--headless-seq") {
+        let ticks: u32 = flag("--ticks").and_then(|s| s.parse().ok()).unwrap_or(300);
+        let skip: u32 = flag("--skip").and_then(|s| s.parse().ok()).unwrap_or(0);
+        return headless_seq(cfg, ticks, skip, PathBuf::from(dir));
+    }
 
     let max_fps = flag("--max-fps").and_then(|s| s.parse().ok()).unwrap_or(60.0);
     let widget = Widget::new(cfg);
@@ -70,6 +75,33 @@ fn main() -> Result<()> {
         },
         widget,
     )
+}
+
+/// Like `headless_shot`, but renders EVERY tick after `skip` into
+/// `dir/frame-%05d.png` — filmstrips and videos for docs come from this.
+fn headless_seq(cfg: WidgetConfig, ticks: u32, skip: u32, dir: PathBuf) -> Result<()> {
+    let size = cfg.size;
+    let gpu = Gpu::new_headless()?;
+    let mut renderer = Renderer::new(&gpu, pocket3d::gpu::OFFSCREEN_FORMAT)?;
+    let mut widget = Widget::new(cfg);
+    widget.init(&gpu, &mut renderer)?;
+    std::fs::create_dir_all(&dir)?;
+
+    let input = Input::default();
+    let dt = 1.0 / TICK_HZ;
+    let target = OffscreenTarget::new(&gpu, size.0, size.1);
+    for i in 0..(skip + ticks) {
+        widget.frame(dt, &input);
+        widget.tick(dt, &input);
+        if i < skip {
+            continue;
+        }
+        let (scene, camera, hud) = widget.compose(0.0, i as f32 * dt, size);
+        renderer.render(&gpu, &target.view, size, scene, camera, hud);
+        target.save_png(&gpu, &dir.join(format!("frame-{:05}.png", i - skip)))?;
+    }
+    println!("wrote {} frames to {}", ticks, dir.display());
+    Ok(())
 }
 
 /// Drive the widget for `ticks` fixed steps without a window, render one
