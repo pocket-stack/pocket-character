@@ -17,7 +17,7 @@ use pocket3d::camera::Camera;
 use pocket3d::gpu::Gpu;
 use pocket3d::hud::Hud;
 use pocket3d::input::Input;
-use pocket3d::model::{ModelAsset, ModelInstance};
+use pocket3d::model::{ModelAsset, ModelInstance, ModelLoadOptions};
 use pocket3d::renderer::Renderer;
 use pocket3d::scene::Scene;
 use pocket_character_core::{CharacterSim, TrackingMode};
@@ -189,11 +189,16 @@ fn apply_expression(vrm: &VrmDoc, model: &Arc<ModelAsset>, scene: &mut Scene, na
 impl Game for Widget {
     fn init(&mut self, gpu: &Gpu, renderer: &mut Renderer) -> Result<()> {
         let t0 = Instant::now();
-        let model = ModelAsset::load_glb(
+        // 2048 halves the 4096² authoring textures: invisible at 450×600,
+        // and GPU texture memory is the widget's dominant footprint.
+        let model = ModelAsset::load_glb_opts(
             gpu,
             &renderer.model_material_layout,
             &renderer.samplers,
             &self.cfg.model_path,
+            &ModelLoadOptions {
+                max_texture_dim: Some(2048),
+            },
         )
         .context("loading VRM model")?;
         let vrm = VrmDoc::from_path(&self.cfg.model_path).context("parsing VRM extension")?;
