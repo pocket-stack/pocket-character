@@ -20,7 +20,8 @@ measurement section below for the answer.
   seeded sim in `pocket-character-core`.
 - **Spring bones** (hair / hood / bust) from the model's VRM data, solved by
   `pocket-vrm`'s verlet solver each tick.
-- **Widget window**: 450×600 (airi's stage geometry), transparent,
+- **Widget window**: 450×600 by default (airi's stage geometry; `--size WxH`
+  for any other footprint — the framing scales with the window), transparent,
   undecorated, always-on-top, drag anywhere to move, frame-paced at 60 fps
   (the loop sleeps; `--max-fps` to taste).
 - **Guest policy bundle** (`app/main.ts` → QuickJS): the `character` surface
