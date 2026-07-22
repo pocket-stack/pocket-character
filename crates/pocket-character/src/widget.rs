@@ -247,11 +247,13 @@ impl Game for Widget {
         // Camera: airi's VRM defaults — fov 40°, 1 m from the model anchor
         // on the -Z side (VRM0 rigs face -Z; airi's default camera sits at
         // z = -1 too).
-        // Anchor at chest height (airi frames the bust: head fills the top
-        // of its 450×600 stage) rather than the AABB midpoint.
+        // Anchor at upper-chest height rather than the AABB midpoint. airi
+        // frames the full head with headroom (docs/airi-vrm-stage.png); at
+        // 0.72 the 40° cone tops out below the crown and clips the hair —
+        // 0.78 keeps the whole head inside the frame on AvatarSample_A.
         let aabb = model.aabb;
         let height = aabb.1.y - aabb.0.y;
-        self.anchor = Vec3::new(0.0, aabb.0.y + height * 0.72, 0.0);
+        self.anchor = Vec3::new(0.0, aabb.0.y + height * 0.78, 0.0);
         self.camera.fov_y = 40f32.to_radians();
         self.camera.znear = 0.05;
         self.camera.pos = self.anchor + Vec3::new(0.0, 0.0, -1.0);
