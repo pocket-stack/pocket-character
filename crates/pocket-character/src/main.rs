@@ -1,7 +1,8 @@
 //! pocket-character: the airi-parity character widget on the Pocket runtime.
 //!
 //! Windowed mode is the product: a transparent, undecorated, always-on-top
-//! 450×600 window (airi's stage geometry) rendering the VRM character.
+//! window (450×600 by default — airi's stage geometry; `--size WxH` to
+//! taste) rendering the VRM character.
 //! `--headless-shot` drives the same [`Game`] object without a window and
 //! saves an RGBA screenshot — CI-friendly parity checks.
 
@@ -34,6 +35,16 @@ fn main() -> Result<()> {
         .map(PathBuf::from)
         .unwrap_or_else(|_| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../.."));
 
+    // --size WxH (default 450x600, airi's stage geometry). The camera fov is
+    // vertical, so any size shows the same framing scaled; changing the aspect
+    // ratio crops horizontally.
+    let size: (u32, u32) = flag("--size")
+        .and_then(|s| {
+            let (w, h) = s.split_once('x')?;
+            Some((w.parse().ok()?, h.parse().ok()?))
+        })
+        .unwrap_or(SIZE);
+
     let cfg = WidgetConfig {
         model_path: flag("--model")
             .map(PathBuf::from)
@@ -44,7 +55,7 @@ fn main() -> Result<()> {
         bundle_path: flag("--bundle")
             .map(PathBuf::from)
             .unwrap_or_else(|| root.join("dist/character.js")),
-        size: SIZE,
+        size,
         frames: flag("--frames").and_then(|s| s.parse().ok()),
     };
 
@@ -63,7 +74,7 @@ fn main() -> Result<()> {
     pocket3d::app::run(
         AppConfig {
             title: "pocket-character".into(),
-            size: SIZE,
+            size,
             tick_hz: TICK_HZ,
             capture_mouse: false,
             transparent: true,
